@@ -1,0 +1,66 @@
+package v1
+
+import (
+	"bytes"
+	"encoding/json"
+	//"errors"
+	"fmt"
+	"io"
+	//"log	"
+	"net/http"
+	//"reflect"
+	//"time"
+)
+
+func FindOutletByID(in <-chan int, out chan<- map[string]interface{}) {
+
+	id := <-in
+
+	fmt.Println("id", id)
+
+	url := fmt.Sprintf("http://api-merchant.eggsmartpos.local/v1/outlets/%d", id)
+
+	out <- MakeRequest("GET", url, nil)
+}
+
+func MakeRequest(method string, url string, params map[string]interface{}) (result map[string]interface{}) {
+
+	var body io.Reader
+
+	if len(params) > 0 {
+
+		req, err := json.Marshal(params)
+
+		if err != nil {
+
+		}
+
+		body = bytes.NewBuffer(req)
+
+	} else {
+		body = nil
+	}
+
+	fmt.Println("url", url)
+	fmt.Println("body", body)
+
+	req, err := http.NewRequest(method, url, body)
+
+	bearer := "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjllNzNlMzMzZDkwOWU3M2I5OWM4YWNhNDQwZDBjMWVmZTgyM2E0ZGEzN2NmN2FlYWUyMGQ5NmM0MTkyY2U5Yjg3YmJmYzQ4NTE0MzQ0NTI2In0.eyJhdWQiOiIyIiwianRpIjoiOWU3M2UzMzNkOTA5ZTczYjk5YzhhY2E0NDBkMGMxZWZlODIzYTRkYTM3Y2Y3YWVhZTIwZDk2YzQxOTJjZTliODdiYmZjNDg1MTQzNDQ1MjYiLCJpYXQiOjE1NjgwODY5NjUsIm5iZiI6MTU2ODA4Njk2NSwiZXhwIjoxNTY4NjkxNzY0LCJzdWIiOiIxIiwic2NvcGVzIjpbIioiXSwicm9sZXMiOlsiQWRtaW5pc3RyYXRvciIsImFkbWluIl0sInBlcm1pc3Npb25zIjpbInJlZ2lzdGVycy5saXN0IiwicmVnaXN0ZXJzLnJlYWQiLCJyZWdpc3RlcnMuY3JlYXRlIiwicmVnaXN0ZXJzLnVwZGF0ZSIsInJlZ2lzdGVycy5kZWxldGUiLCJyb2xlcy5saXN0Iiwicm9sZXMucmVhZCIsInJvbGVzLmNyZWF0ZSIsInJvbGVzLnVwZGF0ZSIsInJvbGVzLmRlbGV0ZSIsInBlcm1pc3Npb25zLmxpc3QiLCJwZXJtaXNzaW9ucy5yZWFkIiwicGVybWlzc2lvbnMuY3JlYXRlIiwicGVybWlzc2lvbnMudXBkYXRlIiwicGVybWlzc2lvbnMuZGVsZXRlIiwidXNlcnMubGlzdCIsInVzZXJzLnJlYWQiLCJ1c2Vycy51cGRhdGUiLCJ1c2Vycy5kZWxldGUiLCJ1c2Vycy5jcmVhdGUiLCJicmFuZHMubGlzdCIsImJyYW5kcy5yZWFkIiwiYnJhbmRzLmNyZWF0ZSIsImJyYW5kcy51cGRhdGUiLCJicmFuZHMuZGVsZXRlIiwiY2F0ZWdvcmllcy5saXN0IiwiY2F0ZWdvcmllcy5yZWFkIiwiY2F0ZWdvcmllcy5jcmVhdGUiLCJjYXRlZ29yaWVzLnVwZGF0ZSIsImNhdGVnb3JpZXMuZGVsZXRlIiwiY29udGVudHMubGlzdCIsImNvbnRlbnRzLnJlYWQiLCJjb250ZW50cy5jcmVhdGUiLCJjb250ZW50cy51cGRhdGUiLCJjb250ZW50cy5kZWxldGUiLCJpbmdyZWRpZW50cy5saXN0IiwiaW5ncmVkaWVudHMucmVhZCIsImluZ3JlZGllbnRzLmNyZWF0ZSIsImluZ3JlZGllbnRzLnVwZGF0ZSIsImluZ3JlZGllbnRzLmRlbGV0ZSIsImludmVudG9yaWVzLmxpc3QiLCJpbnZlbnRvcmllcy5yZWFkIiwiaW52ZW50b3JpZXMuY3JlYXRlIiwiaW52ZW50b3JpZXMudXBkYXRlIiwiaW52ZW50b3JpZXMuZGVsZXRlIiwib3JkZXJzLmxpc3QiLCJvcmRlcnMucmVhZCIsIm9yZGVycy5jcmVhdGUiLCJvcmRlcnMudXBkYXRlIiwib3JkZXJzLmRlbGV0ZSIsIm90cC5saXN0Iiwib3RwLnJlYWQiLCJvdHAuY3JlYXRlIiwib3RwLnVwZGF0ZSIsIm90cC5kZWxldGUiLCJvdXRsZXRzLmxpc3QiLCJvdXRsZXRzLnJlYWQiLCJvdXRsZXRzLmNyZWF0ZSIsIm91dGxldHMudXBkYXRlIiwib3V0bGV0cy5kZWxldGUiLCJwcm9kdWN0LWNhdGVnb3JpZXMubGlzdCIsInByb2R1Y3QtY2F0ZWdvcmllcy5yZWFkIiwicHJvZHVjdC1jYXRlZ29yaWVzLmNyZWF0ZSIsInByb2R1Y3QtY2F0ZWdvcmllcy51cGRhdGUiLCJwcm9kdWN0LWNhdGVnb3JpZXMuZGVsZXRlIiwicHJvZHVjdHMubGlzdCIsInByb2R1Y3RzLnJlYWQiLCJwcm9kdWN0cy5jcmVhdGUiLCJwcm9kdWN0cy51cGRhdGUiLCJwcm9kdWN0cy5kZWxldGUiLCJ0b3BwaW5ncy5saXN0IiwidG9wcGluZ3MucmVhZCIsInRvcHBpbmdzLmNyZWF0ZSIsInRvcHBpbmdzLnVwZGF0ZSIsInRvcHBpbmdzLmRlbGV0ZSIsInVuaXRzLmxpc3QiLCJ1bml0cy5yZWFkIiwidW5pdHMuY3JlYXRlIiwidW5pdHMudXBkYXRlIiwidW5pdHMuZGVsZXRlIiwidG9wcGluZy1ncm91cHMubGlzdCIsInRvcHBpbmctZ3JvdXBzLnJlYWQiLCJ0b3BwaW5nLWdyb3Vwcy5jcmVhdGUiLCJ0b3BwaW5nLWdyb3Vwcy51cGRhdGUiLCJ0b3BwaW5nLWdyb3Vwcy5kZWxldGUiLCJ0ZXJtaW5hbHMubGlzdCIsInRlcm1pbmFscy5yZWFkIiwidGVybWluYWxzLmNyZWF0ZSIsInRlcm1pbmFscy51cGRhdGUiLCJ0ZXJtaW5hbHMuZGVsZXRlIl0sImdyb3VwX2lkIjoxLCJ1c2VyX2luZm8iOnsiaWQiOjEsIm5hbWUiOiJTdXBlcmFkbWluIiwibGFzdF9uYW1lIjoiYWRtaW5pc3RhdG9yIiwiY3JlYXRlZF9hdCI6IjIwMTktMDItMTMgMDQ6Mzc6MDMifSwiYnJhbmRfaWQiOlsxXSwib3V0bGV0X2lkIjpbMV19.YC3h29KwaKLtp-JNEkzuqBPqOYUHXVkPfQx_jKkIPvboyb5tawKk8YKmPVPDgsixVa5LUgMQ2BI5J4WWKZmXh6bqIkgtJEVSY_yjZng7lCz2dErr9x9Hv74Ms8HesDYodu4vosozSmIaQnHcSuXKGH6yxPcgwUVQT_kBypY-s1aCsJ-mhk_XM1rxJtPz1YXuvg2blXEzyi2nc5ih-VW9CSWUULiF2p2wWLb9dgBBQ83iVdrwVI-7rNQUFkh2mMKcko7fRVYFUEnCbKu5aqxPl62iywpov3H_UbqkdwJnUgdfsdBk-TO41JZ49v_dVywXEp-mlVD5Fku3_JeERD_erQ"
+
+	req.Header.Set("Accept", "application/json")
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", bearer)
+
+	if err != nil {
+
+	}
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+
+	json.NewDecoder(resp.Body).Decode(&result)
+
+	return result
+
+}
